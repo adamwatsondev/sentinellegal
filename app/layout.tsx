@@ -51,15 +51,15 @@ export default function RootLayout({
             <div className="flex flex-row gap-4 items-center">
               <SecondaryPoint />
               <span className="text-black font-normal text-sm">
-                Join 850,000+ people and check in under 60 seconds to see if
-                you&apos;re owed compensation. Use the free agreement finder to
-                start your claim
+                Join <strong>850,000+</strong> people and check in under 60
+                seconds to see if you&apos;re owed compensation. Use the free
+                agreement finder to start your claim
               </span>
             </div>
           </div>
           <div>{children}</div>
 
-          <div className="flex flex-col gap-4 items-start">
+          <div className="flex flex-col gap-4 w-full">
             <span className="text-black font-boldtext-5xl">FAQ</span>
             <Accordion type="single" collapsible>
               <AccordionItem value="item-1">
