@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/tooltip";
 import Image from "next/image";
 
-// Define Zod schema for personal details validation
+// Zod schema for validation
 const schema = z.object({
   firstName: z.string().min(2, "First name is required"),
   lastName: z.string().min(2, "Last name is required"),
@@ -51,9 +51,11 @@ type FormData = z.infer<typeof schema>;
 
 export default function StepTwo({
   prevStep,
+  nextStep,
   databaseId,
 }: {
   prevStep: () => void;
+  nextStep: (id: string) => void;
   databaseId: string;
 }) {
   const [personalDetails, setPersonalDetails] = useState({
@@ -87,17 +89,16 @@ export default function StepTwo({
 
   const mockSendDataToServer = (data: unknown) => {
     console.log("Mock sending data to server:", data);
-    // Example of a mock API request (to simulate data being saved on the server)
-    // fetch("/api/save", { method: "POST", body: JSON.stringify(data) });
+    // Place my mock API request here using POST
   };
 
   const onSubmit = (data: FormData) => {
-    // Retrieve existing data (if any) from localStorage
+    // Retrieve data from localStorage otrherwise use empty object
     const existingData = JSON.parse(localStorage.getItem("formData") || "{}");
 
-    // Merge new data with existing data (preserve previous fields)
+    // Merge personal details data with existing step one data
     const updatedData = {
-      ...existingData, // Includes postcode, address, and other fields from StepOne
+      ...existingData,
       firstName: data.firstName,
       lastName: data.lastName,
       dob_day: data.dob_day,
@@ -105,20 +106,20 @@ export default function StepTwo({
       dob_year: data.dob_year,
       mobile_number: data.mobile_number,
       title: data.title,
-      databaseId: databaseId, // Use databaseId prop here
+      databaseId: databaseId,
     };
 
     // Save updated data back to localStorage
     localStorage.setItem("formData", JSON.stringify(updatedData));
 
-    // Send the data along with databaseId to the server (mock)
+    // Send the data along with databaseId to the server for the mock API requests
     mockSendDataToServer(updatedData);
 
-    // Log final data for debugging
+    // Log all details before moving to step three
     console.log("All details submitted:", updatedData);
 
-    // Proceed to the next step, passing the databaseId if required
-    // nextStep(databaseId); // If necessary, use databaseId for continuity
+    // Go to Step Three
+    nextStep(databaseId);
   };
 
   const handleInputChange = (field: keyof FormData, value: string) => {
@@ -296,7 +297,7 @@ export default function StepTwo({
                         <FormControl>
                           <Select
                             {...field}
-                            value={personalDetails.dob_day.toString()} // Ensure it's a string
+                            value={personalDetails.dob_day.toString()}
                             onValueChange={(e) =>
                               handleInputChange("dob_day", e)
                             }
@@ -331,7 +332,7 @@ export default function StepTwo({
                         <FormControl>
                           <Select
                             {...field}
-                            value={personalDetails.dob_month.toString()} // Ensure it's a string
+                            value={personalDetails.dob_month.toString()}
                             onValueChange={(e) =>
                               handleInputChange("dob_month", e)
                             }
@@ -366,7 +367,7 @@ export default function StepTwo({
                         <FormControl>
                           <Select
                             {...field}
-                            value={personalDetails.dob_year.toString()} // Ensure it's a string
+                            value={personalDetails.dob_year.toString()}
                             onValueChange={(e) =>
                               handleInputChange("dob_year", e)
                             }
@@ -417,7 +418,7 @@ export default function StepTwo({
         </CardContent>
         <CardFooter className="flex gap-4 justify-start">
           <Button
-            onClick={handleSubmit(onSubmit)} // Submit form
+            onClick={handleSubmit(onSubmit)}
             className="bg-[#c78e60] text-white"
           >
             Submit
