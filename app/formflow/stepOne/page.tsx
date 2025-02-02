@@ -35,7 +35,7 @@ import {
 import MainPoint from "@/components/elements/main-point";
 import SecondaryPoint from "@/components/elements/secondary-point";
 
-// Define Zod schema for validation
+// Schema for validation
 const schema = z.object({
   postcode: z
     .string()
@@ -67,22 +67,21 @@ export default function StepOne({
   const { handleSubmit, setValue, watch } = form;
 
   const onSubmit = (data: FormData) => {
-    // Generate a unique database ID after checking localStorage from the previous
+    // Generate a unique database ID after checking localStorage from the previously stored ID
     const lastUsedId = Number(localStorage.getItem("lastUsedId") || "0");
     const generatedId = (lastUsedId + 1).toString();
     localStorage.setItem("lastUsedId", generatedId);
 
-    // Store postcode, address, and the generated ID in localStorage
+    // Store Step One data in localStorage
     const stepOneData = {
       postcode: data.postcode,
       address: data.address,
       databaseId: generatedId,
     };
 
-    // Store the data in localStorage under a consistent key
+    // Store the data in localStorage under a JSON key
     localStorage.setItem("formData", JSON.stringify(stepOneData));
 
-    // Proceed to the next step with the generated ID
     nextStep(generatedId);
   };
 
@@ -93,7 +92,7 @@ export default function StepOne({
 
   const handlePostcodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    setValue("postcode", value); // Let react-hook-form track the postcode
+    setValue("postcode", value);
   };
 
   const handlePostcodeSearch = (event: React.MouseEvent<HTMLButtonElement>) => {

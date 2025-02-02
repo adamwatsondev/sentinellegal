@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import StepOne from "./stepOne/page";
 import StepTwo from "./stepTwo/page";
+import StepThree from "./stepThree/page";
 
 export default function FormFlow() {
-  // Retrieve saved step and databaseId if available
+  // Retrieve saved step and databaseId
   const [step, setStep] = useState<number>(() => {
     return Number(localStorage.getItem("currentStep")) || 1;
   });
@@ -12,16 +13,28 @@ export default function FormFlow() {
     return localStorage.getItem("databaseId") || "";
   });
 
-  // Save step to localStorage to persist between reloads
+  // Save step to localStorage to allow storage to stay after reload
   useEffect(() => {
     localStorage.setItem("currentStep", step.toString());
   }, [step]);
 
-  // Function to handle moving to the next step with databaseId
-  const nextStep = (id: string) => {
+  // Move to next step with the databaseId
+  const nextStep2 = (id: string) => {
     setDatabaseId(id);
     localStorage.setItem("databaseId", id);
     setStep(2);
+  };
+
+  const nextStep3 = (id: string) => {
+    setDatabaseId(id);
+    localStorage.setItem("databaseId", id);
+    setStep(3);
+  };
+
+  const nextStep4 = (id: string) => {
+    setDatabaseId(id);
+    localStorage.setItem("databaseId", id);
+    setStep(4);
   };
 
   return (
@@ -43,9 +56,20 @@ export default function FormFlow() {
           Results
         </span>
       </div>
-      {step === 1 && <StepOne nextStep={nextStep} />}
+      {step === 1 && <StepOne nextStep={nextStep2} />}
       {step === 2 && (
-        <StepTwo prevStep={() => setStep(1)} databaseId={databaseId} />
+        <StepTwo
+          nextStep={nextStep3}
+          prevStep={() => setStep(1)}
+          databaseId={databaseId}
+        />
+      )}
+      {step === 3 && (
+        <StepThree
+          nextStep={nextStep4}
+          prevStep={() => setStep(2)}
+          databaseId={databaseId}
+        />
       )}
     </div>
   );
