@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -45,7 +45,11 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-export default function StepOne({ nextStep }: { nextStep: () => void }) {
+export default function StepOne({
+  nextStep,
+}: {
+  nextStep: (id: string) => void;
+}) {
   const [addresses, setAddresses] = useState<string[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<string | undefined>(
     undefined
@@ -60,17 +64,26 @@ export default function StepOne({ nextStep }: { nextStep: () => void }) {
     },
   });
 
-  const { handleSubmit, setValue, watch, formState } = form;
-
-  useEffect(() => {
-    // Log the form state and watch values to help with debugging
-    console.log("Form State:", formState);
-    console.log("Watched Values:", watch());
-  }, [watch, formState]);
+  const { handleSubmit, setValue, watch } = form;
 
   const onSubmit = (data: FormData) => {
-    console.log("Form submitted:", data);
-    nextStep(); // Trigger the next step in the form
+    // Generate a unique database ID after checking localStorage from the previous
+    const lastUsedId = Number(localStorage.getItem("lastUsedId") || "0");
+    const generatedId = (lastUsedId + 1).toString();
+    localStorage.setItem("lastUsedId", generatedId);
+
+    // Store postcode, address, and the generated ID in localStorage
+    const stepOneData = {
+      postcode: data.postcode,
+      address: data.address,
+      databaseId: generatedId,
+    };
+
+    // Store the data in localStorage under a consistent key
+    localStorage.setItem("formData", JSON.stringify(stepOneData));
+
+    // Proceed to the next step with the generated ID
+    nextStep(generatedId);
   };
 
   const mockAddresses: { [key: string]: string[] } = {
@@ -120,7 +133,7 @@ export default function StepOne({ nextStep }: { nextStep: () => void }) {
           </span>
         </div>
       </div>
-      <Card className="w-1/2">
+      <Card className="w-full sm:w-1/2">
         <CardHeader>
           <CardTitle>Your current address</CardTitle>
           <CardDescription>

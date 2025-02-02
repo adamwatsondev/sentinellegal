@@ -27,6 +27,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import Image from "next/image";
 
 // Define Zod schema for personal details validation
 const schema = z.object({
@@ -75,34 +82,57 @@ export default function StepTwo({
   });
 
   const { handleSubmit, setValue } = form;
-
-  // Get the current year and set the range for years
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 83 }, (_, i) => currentYear - 100 + i);
 
-  // Fetch the previously stored address and postcode from localStorage using databaseId
-  const storedData = JSON.parse(localStorage.getItem(databaseId) || "{}");
-
-  // Combine postcode, address, and personal details
-  const finalData = {
-    ...storedData,
-    ...personalDetails,
+  const mockSendDataToServer = (data: unknown) => {
+    console.log("Mock sending data to server:", data);
+    // Example of a mock API request (to simulate data being saved on the server)
+    // fetch("/api/save", { method: "POST", body: JSON.stringify(data) });
   };
 
   const onSubmit = (data: FormData) => {
-    // Store the form data in localStorage with the unique database ID
-    localStorage.setItem(databaseId, JSON.stringify({ ...finalData, ...data }));
+    // Retrieve existing data (if any) from localStorage
+    const existingData = JSON.parse(localStorage.getItem("formData") || "{}");
 
-    // Mock sending data to a fictional endpoint
-    console.log("Mock send data to server:", finalData);
+    // Merge new data with existing data (preserve previous fields)
+    const updatedData = {
+      ...existingData, // Includes postcode, address, and other fields from StepOne
+      firstName: data.firstName,
+      lastName: data.lastName,
+      dob_day: data.dob_day,
+      dob_month: data.dob_month,
+      dob_year: data.dob_year,
+      mobile_number: data.mobile_number,
+      title: data.title,
+      databaseId: databaseId, // Use databaseId prop here
+    };
 
-    // Proceed with the form flow (e.g., show success message or next step)
-    console.log("Personal details submitted:", data);
+    // Save updated data back to localStorage
+    localStorage.setItem("formData", JSON.stringify(updatedData));
+
+    // Send the data along with databaseId to the server (mock)
+    mockSendDataToServer(updatedData);
+
+    // Log final data for debugging
+    console.log("All details submitted:", updatedData);
+
+    // Proceed to the next step, passing the databaseId if required
+    // nextStep(databaseId); // If necessary, use databaseId for continuity
   };
 
   const handleInputChange = (field: keyof FormData, value: string) => {
-    setPersonalDetails((prev) => ({ ...prev, [field]: value }));
-    setValue(field, value); // Set the value in the form
+    setPersonalDetails((prev) => ({
+      ...prev,
+      [field]:
+        field.includes("dob") || field === "mobile_number"
+          ? Number(value)
+          : value,
+    }));
+    setValue(
+      field,
+      field.includes("dob") || field === "mobile_number" ? Number(value) : value
+    );
   };
 
   const titles = [
@@ -120,9 +150,29 @@ export default function StepTwo({
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <Card className="w-1/2">
+      <Card className="w-full">
         <CardHeader>
-          <CardTitle>Your Personal Details</CardTitle>
+          <CardTitle className="flex justify-between items-center">
+            <span className="text-black font-bold">Your Personal Details</span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Image
+                    src="/images/info-icon.png"
+                    alt="Info"
+                    width={25}
+                    height={25}
+                  />
+                </TooltipTrigger>
+                <TooltipContent className="bg-[#c78e60] text-white">
+                  <p>
+                    We need these details so we can cross-reference any car
+                    finance agreement(s) you had with your lender(s)
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </CardTitle>
           <CardDescription>
             Please enter some information about yourself
           </CardDescription>
@@ -149,7 +199,11 @@ export default function StepTwo({
                           </SelectTrigger>
                           <SelectContent>
                             {titles.map((title) => (
-                              <SelectItem key={title} value={title}>
+                              <SelectItem
+                                className="hover:cursor-pointer"
+                                key={title}
+                                value={title}
+                              >
                                 {title}
                               </SelectItem>
                             ))}
@@ -242,7 +296,7 @@ export default function StepTwo({
                         <FormControl>
                           <Select
                             {...field}
-                            value={personalDetails.dob_day}
+                            value={personalDetails.dob_day.toString()} // Ensure it's a string
                             onValueChange={(e) =>
                               handleInputChange("dob_day", e)
                             }
@@ -277,7 +331,7 @@ export default function StepTwo({
                         <FormControl>
                           <Select
                             {...field}
-                            value={personalDetails.dob_month}
+                            value={personalDetails.dob_month.toString()} // Ensure it's a string
                             onValueChange={(e) =>
                               handleInputChange("dob_month", e)
                             }
@@ -312,7 +366,7 @@ export default function StepTwo({
                         <FormControl>
                           <Select
                             {...field}
-                            value={personalDetails.dob_year}
+                            value={personalDetails.dob_year.toString()} // Ensure it's a string
                             onValueChange={(e) =>
                               handleInputChange("dob_year", e)
                             }
@@ -347,7 +401,7 @@ export default function StepTwo({
                         <Input
                           {...field}
                           placeholder="..."
-                          value={personalDetails.mobile_number}
+                          value={personalDetails.mobile_number.toString()}
                           onChange={(e) =>
                             handleInputChange("mobile_number", e.target.value)
                           }
