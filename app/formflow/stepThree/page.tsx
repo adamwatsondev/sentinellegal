@@ -63,6 +63,10 @@ export default function StepThree({
     });
   };
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [databaseId]);
+
   return (
     <div>
       <div className="flex flex-col gap-20">
