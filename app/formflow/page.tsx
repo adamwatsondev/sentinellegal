@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import StepOne from "./stepOne/page";
 import StepTwo from "./stepTwo/page";
@@ -5,25 +7,32 @@ import StepThree from "./stepThree/page";
 import ResultsStep from "./resultsStep/page";
 
 export default function FormFlow() {
-  const [step, setStep] = useState<number>(1);
+  const [step, setStep] = useState<number | null>(null);
   const [databaseId, setDatabaseId] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const currentStep = localStorage.getItem("currentStep");
     const savedDatabaseId = localStorage.getItem("databaseId");
 
+    // Use the saved step if it exists
     if (currentStep) {
       setStep(Number(currentStep));
+    } else {
+      setStep(1); // or default to step 1
     }
 
+    // Use the saved databaseId if it exists
     if (savedDatabaseId) {
       setDatabaseId(savedDatabaseId);
     }
+
+    setLoading(false);
   }, []);
 
   // Save step to localStorage whenever it changes
   useEffect(() => {
-    if (step !== 1) {
+    if (step !== null) {
       localStorage.setItem("currentStep", step.toString());
     }
   }, [step]);
@@ -46,6 +55,15 @@ export default function FormFlow() {
     localStorage.setItem("databaseId", id);
     setStep(4);
   };
+
+  // Show loader while loading state is true
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="loader"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center gap-8">
