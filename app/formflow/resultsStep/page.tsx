@@ -1,6 +1,12 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function ResultsStep({ prevStep }: { prevStep: () => void }) {
   const formData = JSON.parse(localStorage.getItem("formData") || "{}");
@@ -28,6 +34,12 @@ export default function ResultsStep({ prevStep }: { prevStep: () => void }) {
 
         {formData && (
           <div className="flex flex-col gap-4 mt-6">
+            <div className="flex gap-4">
+              <span className="text-sm">
+                Database ID for server-side pushing:
+              </span>
+              <span className="text-sm">{formData.databaseId}</span>
+            </div>
             <div className="flex gap-4">
               <span className="text-sm">Title:</span>
               <span className="text-sm">{formData.title}</span>
@@ -78,6 +90,25 @@ export default function ResultsStep({ prevStep }: { prevStep: () => void }) {
         <Button onClick={prevStep} className="bg-black text-white rounded-md">
           Back
         </Button>
+      </div>
+      <div className="flex flex-col gap-4 w-full sm:w-2/3">
+        <Accordion type="single" collapsible>
+          <AccordionItem value="item-1">
+            <AccordionTrigger>
+              How I would approach the server-side
+            </AccordionTrigger>
+            <AccordionContent>
+              I would use MongoDB to store the form data by sending it POST
+              requests of the localStorage JSON data like this example:
+              <Image
+                src="/images/mongo.png"
+                alt="MongoDB"
+                width={1000}
+                height={1000}
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
     </div>
   );

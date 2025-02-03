@@ -50,26 +50,25 @@ const schema = z
       .min(1, "Last name is required")
       .regex(/^[A-Za-z-]+$/, "Last name must only contain letters and hyphens"),
     dob_day: z
-      .number()
+      .number({ invalid_type_error: "Day is required" })
       .min(1, "Day is required")
       .max(31, "Day must be between 1 and 31"),
     dob_month: z
-      .number()
+      .number({ invalid_type_error: "Day is required" })
       .min(1, "Month is required")
       .max(12, "Month must be between 1 and 12"),
-    dob_year: z.number().min(1, "Year is required"),
+    dob_year: z
+      .number({ invalid_type_error: "Year is required" })
+      .min(1, "Year is required"),
     email: z.string().email("Please enter a valid email address"),
     title: z.string().min(1, "Please select a title"),
     mobile_number: z
       .string()
       .trim()
-      .regex(/^\d+$/, "Mobile number must only contain numbers (remove spaces)")
+      .regex(/^\S*$/, "Do not include spaces")
+      .regex(/^\d+$/, "Mobile number must only contain numbers")
       .min(10, "Mobile number must be at least 10 digits long")
-      .max(15, "Mobile number must be no more than 15 digits long")
-      .refine(
-        (val) => val.length >= 10 && val.length <= 15,
-        "Please enter a valid mobile number"
-      ),
+      .max(15, "Mobile number must be no more than 15 digits long"),
   })
   .superRefine((data, ctx) => {
     const { dob_day, dob_month, dob_year } = data;
@@ -141,11 +140,6 @@ export default function StepTwo({
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 83 }, (_, i) => currentYear - 100 + i);
 
-  const mockSendDataToServer = (data: FormData) => {
-    console.log("Mock sending data to server:", data);
-    // Place my mock API request here using POST
-  };
-
   const onSubmit = (data: FormData) => {
     // Retrieve data from localStorage otrherwise use empty object
     const existingData = JSON.parse(localStorage.getItem("formData") || "{}");
@@ -166,12 +160,6 @@ export default function StepTwo({
 
     // Save updated data back to localStorage
     localStorage.setItem("formData", JSON.stringify(updatedData));
-
-    // Send the data along with databaseId to the server for the mock API requests
-    mockSendDataToServer(updatedData);
-
-    // Log all details before moving to step three
-    console.log("All details submitted:", updatedData);
 
     // Go to Step Three
     nextStep(databaseId);
@@ -352,7 +340,7 @@ export default function StepTwo({
                 />
               </FormItem>
               {/* Date of Birth */}
-              <div className="flex justify-between gap-4">
+              <div className="flex justify-between items-end gap-4">
                 <FormItem className="w-1/3">
                   <FormField
                     control={form.control}
@@ -374,6 +362,7 @@ export default function StepTwo({
                             <SelectContent>
                               {Array.from({ length: 31 }, (_, i) => (
                                 <SelectItem
+                                  className="hover:cursor-pointer"
                                   key={i + 1}
                                   value={(i + 1).toString()}
                                 >
@@ -409,6 +398,7 @@ export default function StepTwo({
                             <SelectContent>
                               {Array.from({ length: 12 }, (_, i) => (
                                 <SelectItem
+                                  className="hover:cursor-pointer"
                                   key={i + 1}
                                   value={(i + 1).toString()}
                                 >
@@ -443,7 +433,11 @@ export default function StepTwo({
                             </SelectTrigger>
                             <SelectContent>
                               {years.map((year) => (
-                                <SelectItem key={year} value={year.toString()}>
+                                <SelectItem
+                                  className="hover:cursor-pointer"
+                                  key={year}
+                                  value={year.toString()}
+                                >
                                   {year}
                                 </SelectItem>
                               ))}
@@ -491,8 +485,8 @@ export default function StepTwo({
           </Button>
           <Button
             onClick={() => {
-              localStorage.clear(); // Clear the localStorage before going back
-              prevStep(); // Call the previous step function to go back
+              localStorage.clear();
+              prevStep();
             }}
             className=" bg-black text-white rounded-md"
           >

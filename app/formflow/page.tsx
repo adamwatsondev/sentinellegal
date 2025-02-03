@@ -8,7 +8,6 @@ export default function FormFlow() {
   const [step, setStep] = useState<number>(1);
   const [databaseId, setDatabaseId] = useState<string>("");
 
-  // Run this effect only on the client side
   useEffect(() => {
     const currentStep = localStorage.getItem("currentStep");
     const savedDatabaseId = localStorage.getItem("databaseId");
@@ -29,7 +28,7 @@ export default function FormFlow() {
     }
   }, [step]);
 
-  // Move to next step with the databaseId
+  // Move to next steps with the databaseId
   const nextStep2 = (id: string) => {
     setDatabaseId(id);
     localStorage.setItem("databaseId", id);
@@ -49,7 +48,7 @@ export default function FormFlow() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-8">
       <div className="flex justify-center gap-4 font-semibold">
         <span className={step === 1 ? "text-[#c78e60]" : "text-gray-500"}>
           Step 1

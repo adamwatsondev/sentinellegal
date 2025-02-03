@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import React, { useEffect, useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
+import { toast, Toaster } from "sonner";
 
 export default function StepThree({
   prevStep,
@@ -33,6 +34,7 @@ export default function StepThree({
   }
 
   const [updatedData, setUpdatedData] = useState<FormData | null>(null);
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const existingData = JSON.parse(localStorage.getItem("formData") || "{}");
@@ -42,6 +44,9 @@ export default function StepThree({
   const clearSignature = () => {
     if (signaturePad.current) {
       signaturePad.current.clear();
+      toast.success(
+        "Signature cleared successfully! Saved signatures will remain saved until a new signature is added."
+      );
     }
   };
 
@@ -55,19 +60,9 @@ export default function StepThree({
       const updatedFormData = { ...formData, signatureDataUrl };
 
       localStorage.setItem("formData", JSON.stringify(updatedFormData));
-
-      mockSendDataToServer(signatureDataUrl, databaseId);
+      setSignatureDataUrl(signatureDataUrl);
+      toast.success("Signature saved successfully!");
     }
-  };
-
-  const mockSendDataToServer = (
-    signatureDataUrl: string,
-    databaseId: string
-  ) => {
-    console.log("Mock send to server with signatureDataUrl and databaseId:", {
-      signatureDataUrl,
-      databaseId,
-    });
   };
 
   useEffect(() => {
@@ -156,6 +151,7 @@ export default function StepThree({
               <Button
                 onClick={() => nextStep(databaseId)}
                 className="bg-[#c78e60] text-white"
+                disabled={!signatureDataUrl}
               >
                 Next
               </Button>
@@ -169,6 +165,7 @@ export default function StepThree({
           </CardContent>
         </Card>
       </div>
+      <Toaster position="bottom-right" />
     </div>
   );
 }

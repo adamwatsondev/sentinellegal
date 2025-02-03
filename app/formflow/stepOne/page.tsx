@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -83,9 +83,11 @@ export default function StepOne({
   const { handleSubmit, setValue, watch } = form;
 
   const onSubmit = (data: FormData) => {
-    // Generate a unique database ID after checking localStorage from the previously stored ID
-    const lastUsedId = Number(localStorage.getItem("lastUsedId") || "0");
-    const generatedId = (lastUsedId + 1).toString();
+    // Generate a unique database ID
+    const generateRandomId = () => {
+      return Math.random().toString(36).substring(2, 10);
+    };
+    const generatedId = generateRandomId();
     localStorage.setItem("lastUsedId", generatedId);
 
     // Store Step One data in localStorage
@@ -95,7 +97,7 @@ export default function StepOne({
       databaseId: generatedId,
     };
 
-    // Store the data in localStorage under a JSON key
+    // Store the data in localStorage under a JSON string
     localStorage.setItem("formData", JSON.stringify(stepOneData));
 
     nextStep(generatedId);
@@ -169,6 +171,10 @@ export default function StepOne({
     setValue("address", address); // Set the address value in the form
   };
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   return (
     <div className="flex flex-col items-center gap-20">
       <div className="flex flex-col gap-8 items-start">
@@ -231,7 +237,7 @@ export default function StepOne({
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="Current postcode"
+                            placeholder="..."
                             onChange={handlePostcodeChange}
                           />
                         </FormControl>
