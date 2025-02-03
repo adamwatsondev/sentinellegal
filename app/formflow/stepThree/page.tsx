@@ -49,6 +49,13 @@ export default function StepThree({
     if (signaturePad.current) {
       const signatureDataUrl = signaturePad.current.toDataURL();
       console.log("Saved Signature Data URL:", signatureDataUrl);
+
+      // Save signature along with updatedData in localStorage
+      const formData = JSON.parse(localStorage.getItem("formData") || "{}");
+      const updatedFormData = { ...formData, signatureDataUrl };
+
+      localStorage.setItem("formData", JSON.stringify(updatedFormData));
+
       mockSendDataToServer(signatureDataUrl, databaseId);
     }
   };

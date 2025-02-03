@@ -200,7 +200,17 @@ export default function StepTwo({
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [databaseId]);
+
+    const savedData = JSON.parse(localStorage.getItem("formData") || "{}");
+
+    if (Object.keys(savedData).length > 0) {
+      setPersonalDetails(savedData);
+
+      Object.entries(savedData).forEach(([key, value]) => {
+        setValue(key as keyof FormData, value as string | number);
+      });
+    }
+  }, [databaseId, setValue]);
 
   return (
     <div className="flex flex-col items-center gap-4">

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import StepOne from "./stepOne/page";
 import StepTwo from "./stepTwo/page";
 import StepThree from "./stepThree/page";
+import ResultsStep from "./resultsStep/page";
 
 export default function FormFlow() {
   // Retrieve saved step and databaseId
@@ -31,7 +32,7 @@ export default function FormFlow() {
     setStep(3);
   };
 
-  const nextStep4 = (id: string) => {
+  const resultsStep = (id: string) => {
     setDatabaseId(id);
     localStorage.setItem("databaseId", id);
     setStep(4);
@@ -66,11 +67,13 @@ export default function FormFlow() {
       )}
       {step === 3 && (
         <StepThree
-          nextStep={nextStep4}
+          nextStep={resultsStep}
           prevStep={() => setStep(2)}
           databaseId={databaseId}
         />
       )}
+
+      {step === 4 && <ResultsStep prevStep={() => setStep(3)} />}
     </div>
   );
 }
