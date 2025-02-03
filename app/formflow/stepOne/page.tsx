@@ -23,6 +23,7 @@ import {
   FormField,
   FormLabel,
   FormControl,
+  FormMessage,
 } from "@/components/ui/form";
 import {
   Card,
@@ -32,15 +33,30 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import MainPoint from "@/components/elements/main-point";
 import SecondaryPoint from "@/components/elements/secondary-point";
+import Image from "next/image";
 
 // Schema for validation
 const schema = z.object({
   postcode: z
     .string()
-    .regex(/^[A-Za-z0-9]+$/, "Postcode must only contain letters and numbers"),
-  address: z.string(),
+    .min(1, "Postcode is required")
+    .regex(
+      /^[A-Za-z0-9]+$/,
+      "Postcode must only contain letters and numbers (including spaces)"
+    )
+    .refine(
+      (val) => val.length >= 5 && val.length <= 8,
+      "Postcode must be between 5 and 8 characters long"
+    ), // Between 5 to 8 characters
+  address: z.string().min(1, "Please select an address"),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -86,8 +102,41 @@ export default function StepOne({
   };
 
   const mockAddresses: { [key: string]: string[] } = {
-    BN2: ["123 Main St", "456 Elm St", "789 Oak Rd"],
-    BN1: ["1 Pine St", "2 Cedar Ave", "3 Birch Rd"],
+    BN13JF: [
+      "1 Nyetimber Hill",
+      "2 Nyetimber Hill",
+      "3 Nyetimber Hill",
+      "4 Nyetimber Hill",
+      "5 Nyetimber Hill",
+    ],
+    BN24TL: [
+      "1 Green Lane",
+      "2 Green Lane",
+      "3 Green Lane",
+      "4 Green Lane",
+      "5 Green Lane",
+    ],
+    RH10AX: [
+      "1 Oakwood Drive",
+      "2 Oakwood Drive",
+      "3 Oakwood Drive",
+      "4 Oakwood Drive",
+      "5 Oakwood Drive",
+    ],
+    BN99HT: [
+      "1 Cedar Road",
+      "2 Cedar Road",
+      "3 Cedar Road",
+      "4 Cedar Road",
+      "5 Cedar Road",
+    ],
+    PO19BL: [
+      "1 High Street",
+      "2 High Street",
+      "3 High Street",
+      "4 High Street",
+      "5 High Street",
+    ],
   };
 
   const handlePostcodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,16 +144,23 @@ export default function StepOne({
     setValue("postcode", value);
   };
 
-  const handlePostcodeSearch = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handlePostcodeSearch = async (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     event.preventDefault(); // Prevent page reset
 
-    // Check if postcode exists in mockAddresses
-    if (mockAddresses[watch("postcode")]) {
-      setAddresses(mockAddresses[watch("postcode")]);
-      setIsPostcodeSearched(true);
-    } else {
-      setAddresses([]);
-      setIsPostcodeSearched(false);
+    // Validate postcode first
+    const isValid = await form.trigger("postcode");
+
+    if (isValid) {
+      // Check if postcode exists in mockAddresses
+      if (mockAddresses[watch("postcode")]) {
+        setAddresses(mockAddresses[watch("postcode")]);
+        setIsPostcodeSearched(true);
+      } else {
+        setAddresses([]);
+        setIsPostcodeSearched(false);
+      }
     }
   };
 
@@ -134,7 +190,27 @@ export default function StepOne({
       </div>
       <Card className="w-full sm:w-1/2">
         <CardHeader>
-          <CardTitle>Your current address</CardTitle>
+          <CardTitle className="flex justify-between items-center">
+            <span>Your current address</span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Image
+                    src="/images/info-icon.png"
+                    alt="Info"
+                    width={25}
+                    height={25}
+                  />
+                </TooltipTrigger>
+                <TooltipContent className="bg-[#c78e60] text-white">
+                  <span>
+                    *psst* *hey* *over here* these are the postcodes that work
+                    for demo purposes: BN13JF, BN24TL, RH10AX, BN99HT, PO19BL
+                  </span>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </CardTitle>
           <CardDescription>
             Enter your postcode below and tap Search
           </CardDescription>
@@ -150,21 +226,24 @@ export default function StepOne({
                   control={form.control}
                   name="postcode"
                   render={({ field }) => (
-                    <div className="flex gap-2 items-center">
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="Current postcode"
-                          onChange={handlePostcodeChange}
-                        />
-                      </FormControl>
-                      <Button
-                        className="bg-[#c78e60]"
-                        onClick={handlePostcodeSearch}
-                        disabled={!watch("postcode")}
-                      >
-                        Search
-                      </Button>
+                    <div className="flex flex-col gap-2 items-center">
+                      <div className="w-full flex gap-1">
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="Current postcode"
+                            onChange={handlePostcodeChange}
+                          />
+                        </FormControl>
+                        <Button
+                          className="bg-[#c78e60]"
+                          onClick={handlePostcodeSearch}
+                          // disabled={!watch("postcode")} removed to allow form validation
+                        >
+                          Search
+                        </Button>
+                      </div>
+                      <FormMessage />
                     </div>
                   )}
                 />
@@ -189,13 +268,18 @@ export default function StepOne({
                             </SelectTrigger>
                             <SelectContent>
                               {addresses.map((address) => (
-                                <SelectItem key={address} value={address}>
+                                <SelectItem
+                                  key={address}
+                                  value={address}
+                                  className="hover:cursor-pointer"
+                                >
                                   {address}
                                 </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
                         </FormControl>
+                        <FormMessage />
                       </>
                     )}
                   />
@@ -209,7 +293,7 @@ export default function StepOne({
             className="bg-[#c78e60]"
             type="submit"
             onClick={handleSubmit(onSubmit)}
-            disabled={!selectedAddress}
+            // disabled={!selectedAddress} removed to allow form validation
           >
             Next
           </Button>
