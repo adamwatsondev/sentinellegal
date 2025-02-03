@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 
 export default function StepThree({
@@ -19,6 +19,25 @@ export default function StepThree({
   databaseId: string;
 }) {
   const signaturePad = useRef<SignatureCanvas | null>(null);
+  interface FormData {
+    title: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    mobile_number: number;
+    dob_day: number;
+    dob_month: number;
+    dob_year: number;
+    address: string;
+    postcode: string;
+  }
+
+  const [updatedData, setUpdatedData] = useState<FormData | null>(null);
+
+  useEffect(() => {
+    const existingData = JSON.parse(localStorage.getItem("formData") || "{}");
+    setUpdatedData(existingData);
+  }, []);
 
   const clearSignature = () => {
     if (signaturePad.current) {
@@ -46,7 +65,50 @@ export default function StepThree({
 
   return (
     <div>
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col gap-20">
+        <div className="flex flex-col gap-8 items-start">
+          <span className="text-black text-left font-bold text-3xl">
+            Provided Information
+          </span>
+
+          {updatedData && (
+            <div className="flex flex-col gap-4">
+              <div className="flex gap-4">
+                <span className="text-sm">Title:</span>
+                <span className="text-sm">{updatedData.title}</span>
+              </div>
+              <div className="flex gap-4">
+                <span className="text-sm">First Name:</span>
+                <span className="text-sm">{updatedData.firstName}</span>
+              </div>
+              <div className="flex gap-4">
+                <span className="text-sm">Last Name:</span>
+                <span className="text-sm">{updatedData.lastName}</span>
+              </div>
+              <div className="flex gap-4">
+                <span className="text-sm">Email:</span>
+                <span className="text-sm">{updatedData.email}</span>
+              </div>
+              <div className="flex gap-4">
+                <span className="text-sm">Mobile Number:</span>
+                <span className="text-sm">{updatedData.mobile_number}</span>
+              </div>
+              <div className="flex gap-4">
+                <span className="text-sm">Date of Birth:</span>
+                <span className="text-sm">
+                  {updatedData.dob_day}/{updatedData.dob_month}/
+                  {updatedData.dob_year}
+                </span>
+              </div>
+              <div className="flex gap-4">
+                <span className="text-sm">Address:</span>
+                <span className="text-sm">
+                  {updatedData.address}, {updatedData.postcode}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
         <Card className="w-full">
           <CardHeader>
             <CardTitle>Provide your signature</CardTitle>
@@ -63,7 +125,7 @@ export default function StepThree({
                 width: 500,
                 height: 200,
                 className:
-                  "sigCanvas border-2 sm:w-2/3 rounded-md border-[#c78e60]",
+                  "sigCanvas border-2 w-2/3 rounded-md border-[#c78e60]",
               }}
             />
             <div className="flex justify-end flex-col gap-4">

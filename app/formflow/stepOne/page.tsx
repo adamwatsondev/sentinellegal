@@ -155,13 +155,13 @@ export default function StepOne({
                         <Input
                           {...field}
                           placeholder="Current postcode"
-                          onChange={handlePostcodeChange} // Use form state for postcode
+                          onChange={handlePostcodeChange}
                         />
                       </FormControl>
                       <Button
                         className="bg-[#c78e60]"
-                        onClick={handlePostcodeSearch} // Prevent page reset
-                        disabled={!watch("postcode")} // Disable if postcode is empty
+                        onClick={handlePostcodeSearch}
+                        disabled={!watch("postcode")}
                       >
                         Search
                       </Button>
@@ -182,7 +182,7 @@ export default function StepOne({
                           <Select
                             {...field}
                             value={selectedAddress}
-                            onValueChange={handleAddressSelect} // When address selected
+                            onValueChange={handleAddressSelect}
                           >
                             <SelectTrigger>
                               <SelectValue placeholder="Select an address" />
@@ -207,9 +207,9 @@ export default function StepOne({
         <CardFooter>
           <Button
             className="bg-[#c78e60]"
-            type="submit" // Make sure it's submitting the form
-            onClick={handleSubmit(onSubmit)} // Submit form
-            disabled={!selectedAddress} // Only enable button when address is selected
+            type="submit"
+            onClick={handleSubmit(onSubmit)}
+            disabled={!selectedAddress}
           >
             Next
           </Button>

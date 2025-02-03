@@ -107,6 +107,7 @@ export default function StepTwo({
       mobile_number: data.mobile_number,
       title: data.title,
       databaseId: databaseId,
+      email: data.email,
     };
 
     // Save updated data back to localStorage
