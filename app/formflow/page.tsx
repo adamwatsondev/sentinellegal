@@ -5,18 +5,28 @@ import StepThree from "./stepThree/page";
 import ResultsStep from "./resultsStep/page";
 
 export default function FormFlow() {
-  // Retrieve saved step and databaseId
-  const [step, setStep] = useState<number>(() => {
-    return Number(localStorage.getItem("currentStep")) || 1;
-  });
+  const [step, setStep] = useState<number>(1);
+  const [databaseId, setDatabaseId] = useState<string>("");
 
-  const [databaseId, setDatabaseId] = useState<string>(() => {
-    return localStorage.getItem("databaseId") || "";
-  });
-
-  // Save step to localStorage to allow storage to stay after reload
+  // Run this effect only on the client side
   useEffect(() => {
-    localStorage.setItem("currentStep", step.toString());
+    const currentStep = localStorage.getItem("currentStep");
+    const savedDatabaseId = localStorage.getItem("databaseId");
+
+    if (currentStep) {
+      setStep(Number(currentStep));
+    }
+
+    if (savedDatabaseId) {
+      setDatabaseId(savedDatabaseId);
+    }
+  }, []);
+
+  // Save step to localStorage whenever it changes
+  useEffect(() => {
+    if (step !== 1) {
+      localStorage.setItem("currentStep", step.toString());
+    }
   }, [step]);
 
   // Move to next step with the databaseId
@@ -72,7 +82,6 @@ export default function FormFlow() {
           databaseId={databaseId}
         />
       )}
-
       {step === 4 && <ResultsStep prevStep={() => setStep(3)} />}
     </div>
   );

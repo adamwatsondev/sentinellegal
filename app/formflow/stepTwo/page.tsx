@@ -363,7 +363,7 @@ export default function StepTwo({
                         <FormControl>
                           <Select
                             {...field}
-                            value={personalDetails.dob_day.toString()} // Convert number to string for the Select component
+                            value={personalDetails.dob_day?.toString()} // Convert number to string for the Select component
                             onValueChange={(e) =>
                               handleInputChange("dob_day", parseInt(e, 10))
                             } // Parse the string value back to a number
@@ -398,7 +398,7 @@ export default function StepTwo({
                         <FormControl>
                           <Select
                             {...field}
-                            value={personalDetails.dob_month.toString()}
+                            value={personalDetails.dob_month?.toString()}
                             onValueChange={(e) =>
                               handleInputChange("dob_month", parseInt(e, 10))
                             }
@@ -433,7 +433,7 @@ export default function StepTwo({
                         <FormControl>
                           <Select
                             {...field}
-                            value={personalDetails.dob_year.toString()}
+                            value={personalDetails.dob_year?.toString()}
                             onValueChange={(e) =>
                               handleInputChange("dob_year", parseInt(e, 10))
                             }
@@ -490,7 +490,10 @@ export default function StepTwo({
             Submit
           </Button>
           <Button
-            onClick={prevStep}
+            onClick={() => {
+              localStorage.clear(); // Clear the localStorage before going back
+              prevStep(); // Call the previous step function to go back
+            }}
             className=" bg-black text-white rounded-md"
           >
             Back
